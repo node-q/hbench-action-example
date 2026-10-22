@@ -9,6 +9,7 @@ Fork it, add a key, and run an agent from the Actions tab.
 - [What's here](#whats-here)
 - [Try it](#try-it)
 - [The workflows](#the-workflows)
+- [Run it on your machine](#run-it-on-your-machine)
 - [Add your own task](#add-your-own-task)
 - [License](#license)
 
@@ -97,6 +98,26 @@ reads only its own.
 Every input and output of the action is in its
 [reference](https://github.com/node-q/hbench-action/blob/main/docs/REFERENCE.md).
 
+## Run it on your machine
+
+You need Docker, on Linux or macOS. From a clone of this repository:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/node-q/hbench/master/scripts/install.sh | sh
+
+hbench run -p tasks -a oracle                                       # every task, with the oracle
+hbench datasets list --registry-path registry.json                  # the datasets in registry.json
+hbench run -d example@1.0 --registry-path registry.json -a oracle   # example@1.0, from registry.json
+hbench run -d example@1.0 -a oracle \
+  --registry-url https://raw.githubusercontent.com/node-q/hbench-action-example/main/registry.json
+ANTHROPIC_API_KEY=sk-ant-... hbench run -d example@1.0 --registry-path registry.json \
+  -a claude-code -m anthropic/claude-opus-5-5                       # an agent
+hbench view jobs                                                    # the results in your browser
+```
+
+The tasks in `registry.json` name folders of this repository, so run it from the clone's root, by path or by
+URL.
+
 ## Add your own task
 
 1. Copy a task folder, such as `tasks/fix-median`, and give it a new name, in the folder and in `task.toml`.
@@ -107,7 +128,7 @@ Every input and output of the action is in its
 4. Add it to `registry.json` if it belongs in the dataset, and push: **Check tasks** runs it with the oracle
    and with `nop`.
 
-To run the same checks on your machine, install hbench and run `hbench run -p tasks -a oracle`.
+To run the same checks on your machine, see [Run it on your machine](#run-it-on-your-machine).
 
 ## License
 
