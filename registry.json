@@ -1,0 +1,12 @@
+[
+  {
+    "name": "example",
+    "version": "1.0",
+    "description": "This repository's three tasks, as a dataset.",
+    "tasks": [
+      { "name": "hello-world", "path": "tasks/hello-world" },
+      { "name": "fix-median", "path": "tasks/fix-median" },
+      { "name": "count-words", "path": "tasks/count-words" }
+    ]
+  }
+]

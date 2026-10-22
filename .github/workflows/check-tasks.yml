@@ -1,0 +1,47 @@
+name: Check tasks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  oracle:
+    name: Every task's reference solution passes
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: node-q/hbench-action@v1
+        with:
+          path: tasks
+          agent: oracle
+          n-concurrent: 3
+          min-mean-reward: 1
+
+  nop:
+    name: No task passes without any work
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: node-q/hbench-action@v1
+        id: hbench
+        with:
+          path: tasks
+          agent: nop
+          n-concurrent: 3
+          upload-artifact: false
+      - name: Check that every task scored 0
+        env:
+          MEAN_REWARD: ${{ steps.hbench.outputs.mean-reward }}
+        run: |
+          if [[ "$MEAN_REWARD" != 0.0 ]]; then
+            echo "::error::An agent that does nothing scored $MEAN_REWARD; a task's tests pass without the work."
+            exit 1
+          fi

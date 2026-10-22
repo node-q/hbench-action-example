@@ -1,0 +1,48 @@
+name: Run a dataset
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: Dataset (example@1.0 is this repository's registry.json; the others are public datasets)
+        type: choice
+        options: [example@1.0, humaneval-plus@1.0, mbpp-plus@1.0, terminal-bench@2.0.1]
+        default: example@1.0
+      agent:
+        description: Agent
+        type: choice
+        options: [oracle, claude-code, codex, gemini-cli, deepseek-harness]
+        default: oracle
+      model:
+        description: Model, as provider/name (not used by the oracle)
+        type: string
+        default: anthropic/claude-opus-5-5
+      n-tasks:
+        description: Run at most this many tasks
+        type: string
+        default: '5'
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: ${{ inputs.agent }} on ${{ inputs.dataset }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: node-q/hbench-action@v1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        with:
+          dataset: ${{ inputs.dataset }}
+          registry: ${{ inputs.dataset == 'example@1.0' && 'registry.json' || 'oci://ghcr.io/node-q/hbench-datasets' }}
+          agent: ${{ inputs.agent }}
+          model: ${{ inputs.agent != 'oracle' && inputs.model || '' }}
+          n-tasks: ${{ inputs.n-tasks }}
+          n-concurrent: 4
